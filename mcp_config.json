@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "mcp-tools": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["main.py"]
+    }
+  }
+}
