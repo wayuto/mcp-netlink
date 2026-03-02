@@ -11,5 +11,4 @@ dependencies = [
     "pydantic>=2.12.3",
     "mcp-proxy>=0.10.0",
     "fastmcp>=2.13.0.2",
-    "ddgs>=7.0.0",
 ]
