@@ -199,6 +199,15 @@ def open_url(url: str, chunk_index: int = -1, max_retries: int = 3) -> dict:
 
             # Return based on chunk_index
             if chunk_index == -1:
+                # If only 1 chunk, return content directly
+                if total_chunks == 1:
+                    return {
+                        "success": True,
+                        "total_chunks": 1,
+                        "total_length": total_length,
+                        "content": chunks[0],
+                    }
+                # Otherwise return metadata only, caller needs to request chunks
                 return {
                     "success": True,
                     "total_chunks": total_chunks,
