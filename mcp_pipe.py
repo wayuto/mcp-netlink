@@ -56,7 +56,7 @@ async def connect_with_retry(uri, target):
                 )
                 await asyncio.sleep(backoff)
 
-            # Attempt to connect
+            # Attempt to connect with larger max_size (10MB) to handle big responses
             await connect_to_server(uri, target)
 
         except Exception as e:
@@ -72,7 +72,7 @@ async def connect_to_server(uri, target):
     """Connect to WebSocket server and pipe stdio for the given server target."""
     try:
         logger.info(f"[{target}] Connecting to WebSocket server...")
-        async with websockets.connect(uri) as websocket:
+        async with websockets.connect(uri, max_size=10 * 1024 * 1024) as websocket:
             logger.info(f"[{target}] Successfully connected to WebSocket server")
 
             # Start server process (built from CLI arg or config)
