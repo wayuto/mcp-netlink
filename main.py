@@ -26,7 +26,7 @@ mcp = FastMCP("MCP-Tools")
 
 # Global cache for URL content
 _url_cache: dict = {}
-MAX_CHUNK_SIZE = 500 * 1024  # 500KB max characters per chunk (WebSocket friendly)
+MAX_CHUNK_SIZE = 400 * 1024  # 400KB max characters per chunk (for 1MB WebSocket limit)
 
 
 # ==================== Calculator ====================
