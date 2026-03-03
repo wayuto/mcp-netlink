@@ -26,7 +26,7 @@ mcp = FastMCP("MCP-Tools")
 
 # Global cache for URL content
 _url_cache: dict = {}
-CHUNK_SIZE = 49152  # characters per chunk
+MAX_CHUNK_SIZE = 1.5 * 1024 * 1024  # 1.5MB max characters per chunk
 
 
 # ==================== Calculator ====================
@@ -177,11 +177,13 @@ def open_url(url: str, chunk_index: int = -1, max_retries: int = 3) -> dict:
             text = re.sub(r"\s+", " ", text)
             text = text.strip()
 
-            # Split into chunks
+            # Split into chunks dynamically
+            # Ensure each chunk is at most MAX_CHUNK_SIZE (1.5MB)
             total_length = len(text)
-            total_chunks = (total_length + CHUNK_SIZE - 1) // CHUNK_SIZE
+            chunk_size = min(MAX_CHUNK_SIZE, total_length)
+            total_chunks = max(1, (total_length + chunk_size - 1) // chunk_size)
             chunks = [
-                text[i : i + CHUNK_SIZE] for i in range(0, total_length, CHUNK_SIZE)
+                text[i : i + chunk_size] for i in range(0, total_length, chunk_size)
             ]
 
             # Cache the result
