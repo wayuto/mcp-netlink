@@ -203,8 +203,6 @@ def open_url(url: str, chunk_index: int = -1, max_retries: int = 3) -> dict:
                     "success": True,
                     "total_chunks": total_chunks,
                     "total_length": total_length,
-                    "chunk_index": 0,
-                    "content": chunks[0] if chunks else "",
                 }
             else:
                 if chunk_index >= total_chunks:
