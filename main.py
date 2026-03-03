@@ -26,7 +26,7 @@ mcp = FastMCP("MCP-Tools")
 
 # Global cache for URL content
 _url_cache: dict = {}
-CHUNK_SIZE = 45000  # characters per chunk
+CHUNK_SIZE = 49152  # characters per chunk
 
 
 # ==================== Calculator ====================
