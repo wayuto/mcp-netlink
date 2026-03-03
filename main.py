@@ -26,7 +26,7 @@ mcp = FastMCP("MCP-Tools")
 
 # Global cache for URL content
 _url_cache: dict = {}
-CHUNK_SIZE = 50000  # characters per chunk
+CHUNK_SIZE = 45000  # characters per chunk
 
 
 # ==================== Calculator ====================
@@ -42,11 +42,15 @@ def calculator(python_expression: str) -> dict:
     try:
         result = eval(python_expression, {"math": math, "random": random})
         elapsed = time.time() - start_time
-        logger.info(f"[Calculator] Success: {python_expression} = {result} (took {elapsed:.3f}s)")
+        logger.info(
+            f"[Calculator] Success: {python_expression} = {result} (took {elapsed:.3f}s)"
+        )
         return {"success": True, "result": result}
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[Calculator] Failed: {python_expression} -> {type(e).__name__}: {e} (took {elapsed:.3f}s)")
+        logger.error(
+            f"[Calculator] Failed: {python_expression} -> {type(e).__name__}: {e} (took {elapsed:.3f}s)"
+        )
         return {"success": False, "error": str(e)}
 
 
@@ -60,7 +64,9 @@ def web_search(query: str, max_results: int = 5) -> dict:
         max_results: Maximum number of results to return (default: 5)
     """
     start_time = time.time()
-    logger.info(f"[Search] Starting search: query='{query}', max_results={max_results}, backend=bing")
+    logger.info(
+        f"[Search] Starting search: query='{query}', max_results={max_results}, backend=bing"
+    )
     try:
         results = []
         with DDGS() as ddgs:
@@ -72,14 +78,20 @@ def web_search(query: str, max_results: int = 5) -> dict:
                         "body": r.get("body", ""),
                     }
                 )
-                logger.debug(f"[Search] Found: {r.get('title', '')[:50]}... -> {r.get('href', '')}")
+                logger.debug(
+                    f"[Search] Found: {r.get('title', '')[:50]}... -> {r.get('href', '')}"
+                )
 
         elapsed = time.time() - start_time
-        logger.info(f"[Search] Completed: query='{query}' -> {len(results)} results (took {elapsed:.3f}s)")
+        logger.info(
+            f"[Search] Completed: query='{query}' -> {len(results)} results (took {elapsed:.3f}s)"
+        )
         return {"success": True, "results": results, "count": len(results)}
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[Search] Failed: query='{query}' -> {type(e).__name__}: {e} (took {elapsed:.3f}s)")
+        logger.error(
+            f"[Search] Failed: query='{query}' -> {type(e).__name__}: {e} (took {elapsed:.3f}s)"
+        )
         return {"success": False, "error": str(e)}
 
 
@@ -105,15 +117,21 @@ def open_url(url: str, chunk_index: int = -1, max_retries: int = 3) -> dict:
     if url in _url_cache and chunk_index >= 0:
         cached = _url_cache[url]
         total_chunks = cached["total_chunks"]
-        logger.info(f"[OpenURL] Cache hit: url={url}, returning chunk {chunk_index}/{total_chunks}")
+        logger.info(
+            f"[OpenURL] Cache hit: url={url}, returning chunk {chunk_index}/{total_chunks}"
+        )
         if chunk_index >= total_chunks:
-            logger.warning(f"[OpenURL] Invalid chunk_index {chunk_index}, max is {total_chunks-1}")
+            logger.warning(
+                f"[OpenURL] Invalid chunk_index {chunk_index}, max is {total_chunks-1}"
+            )
             return {
                 "success": False,
                 "error": f"chunk_index {chunk_index} out of range (0-{total_chunks-1})",
             }
         elapsed = time.time() - start_time
-        logger.info(f"[OpenURL] Cache served: chunk {chunk_index}/{total_chunks} (took {elapsed:.3f}s)")
+        logger.info(
+            f"[OpenURL] Cache served: chunk {chunk_index}/{total_chunks} (took {elapsed:.3f}s)"
+        )
         return {
             "success": True,
             "chunk_index": chunk_index,
@@ -121,7 +139,9 @@ def open_url(url: str, chunk_index: int = -1, max_retries: int = 3) -> dict:
             "content": cached["chunks"][chunk_index],
         }
 
-    logger.info(f"[OpenURL] Cache miss, fetching: url={url}, chunk_index={chunk_index}, max_retries={max_retries}")
+    logger.info(
+        f"[OpenURL] Cache miss, fetching: url={url}, chunk_index={chunk_index}, max_retries={max_retries}"
+    )
 
     # Fetch and process the URL
     last_error = None
@@ -137,7 +157,9 @@ def open_url(url: str, chunk_index: int = -1, max_retries: int = 3) -> dict:
                 html = response.read().decode("utf-8", errors="ignore")
             fetch_elapsed = time.time() - fetch_start
             original_size = len(html)
-            logger.info(f"[OpenURL] Downloaded {original_size} chars in {fetch_elapsed:.3f}s")
+            logger.info(
+                f"[OpenURL] Downloaded {original_size} chars in {fetch_elapsed:.3f}s"
+            )
 
             # Remove <script> and <style> content
             text = re.sub(
@@ -147,7 +169,9 @@ def open_url(url: str, chunk_index: int = -1, max_retries: int = 3) -> dict:
                 r"<style[^>]*>.*?</style>", "", text, flags=re.DOTALL | re.IGNORECASE
             )
             filtered_size = len(text)
-            logger.debug(f"[OpenURL] Filtered: {original_size} -> {filtered_size} chars (removed {original_size - filtered_size})")
+            logger.debug(
+                f"[OpenURL] Filtered: {original_size} -> {filtered_size} chars (removed {original_size - filtered_size})"
+            )
 
             # Clean up whitespace
             text = re.sub(r"\s+", " ", text)
@@ -167,7 +191,9 @@ def open_url(url: str, chunk_index: int = -1, max_retries: int = 3) -> dict:
                 "chunks": chunks,
             }
             elapsed = time.time() - start_time
-            logger.info(f"[OpenURL] Success: {total_length} chars, {total_chunks} chunks, cached (took {elapsed:.3f}s)")
+            logger.info(
+                f"[OpenURL] Success: {total_length} chars, {total_chunks} chunks, cached (took {elapsed:.3f}s)"
+            )
 
             # Return based on chunk_index
             if chunk_index == -1:
@@ -192,14 +218,18 @@ def open_url(url: str, chunk_index: int = -1, max_retries: int = 3) -> dict:
                 }
         except Exception as e:
             last_error = e
-            logger.warning(f"[OpenURL] Attempt {attempt + 1} failed: {type(e).__name__}: {e}")
+            logger.warning(
+                f"[OpenURL] Attempt {attempt + 1} failed: {type(e).__name__}: {e}"
+            )
             if attempt < max_retries - 1:
                 wait_time = 2**attempt  # Exponential backoff: 1, 2, 4 seconds
                 logger.info(f"[OpenURL] Retrying in {wait_time}s...")
                 time.sleep(wait_time)
 
     elapsed = time.time() - start_time
-    logger.error(f"[OpenURL] All {max_retries} attempts failed for {url}: {last_error} (took {elapsed:.3f}s)")
+    logger.error(
+        f"[OpenURL] All {max_retries} attempts failed for {url}: {last_error} (took {elapsed:.3f}s)"
+    )
     return {"success": False, "error": str(last_error)}
 
 
